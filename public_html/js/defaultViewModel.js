@@ -197,10 +197,28 @@
 			} else if (spotify.access_token === null && spotify.refresh_token !== null) {
 				refreshSpotifyToken();
 			}
-			var data = JSON.parse(sessionStorage.getItem("songs"));
-			if (data !== null) {
+			var page = JSON.parse(sessionStorage.getItem("page"));
+			var songData = JSON.parse(sessionStorage.getItem("songs"));
+			if (page !== null && songData !== null) {
+				pageInfo.jsonUrl(page.jsonUrl);
+				pageInfo.pages(parseInt(page.pages));
+				pageInfo.songs(page.songs);
+				pageInfo.title(page.title);
+
+				for (var i = 0; i < page.pageFetchStatus.length; i++) {
+					var item = page.pageFetchStatus[i];
+					pageInfo.pageFetchStatus.push({
+						url: item.url,
+						page: item.page,
+						loading: ko.observable(item.loading),
+						hasFetchedTracks: ko.observable(item.hasFetchedTracks),
+						erorrOnFetch: ko.observable(item.erorrOnFetch)
+					});
+				}
+
+
 				var cachedSongs = [];
-				ko.utils.arrayForEach(data, function(song) {
+				ko.utils.arrayForEach(songData, function(song) {
 					cachedSongs.push({
 						artist: ko.observable(song.artist),
 						title: ko.observable(song.title),
@@ -271,10 +289,16 @@
 							erorrOnFetch: ko.observable(false)
 						});
 					}
+					storePageData();
 					getTracksFromAllHypemPages();
 				}).fail(function(message) {
 
 				});
+		}
+
+		function storePageData() {
+			sessionStorage.setItem("page", ko.toJSON(pageInfo));
+			sessionStorage.setItem("songs", ko.toJSON(songs));
 		}
 
 		function getTracksFromAllHypemPages() {
@@ -287,6 +311,7 @@
 
 		function getTracksFromAllHypemPagesRecursive(currentPage, maxPage) {
 			if (currentPage > maxPage) {
+				storePageData();
 				return;
 			}
 			var pageObject = ko.utils.arrayFirst(pageInfo.pageFetchStatus(), function(item) {
@@ -313,7 +338,6 @@
 							});
 							var currentSongs = songs();
 							songs(currentSongs.concat(newSongs));
-							sessionStorage.setItem("songs", ko.toJSON(songs));
 						} else {
 							pageObject.erorrOnFetch(true);
 						}

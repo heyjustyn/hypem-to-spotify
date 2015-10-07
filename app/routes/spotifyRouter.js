@@ -119,11 +119,12 @@ router.post("/search", function(req, res) {
 		json: true
 	};
 	request.get(options, function(error, response, body) {
-		var data = body;
+		var data = {
+			results: []
+		};
 		if (!error && response.statusCode == 200) {
-			data = [];
 			for (var i = 0; i < body.tracks.items.length; i++) {
-				data.push({
+				data.results.push({
 					artist: body.tracks.items[i].artists[0].name,
 					title: body.tracks.items[i].name,
 					uri: body.tracks.items[i].uri,
@@ -131,8 +132,26 @@ router.post("/search", function(req, res) {
 					available_markets: body.tracks.items[i].available_markets
 				});
 			}
+		} else if (response.statusCode == 429) {
+			console.log({
+				'error': 'Rate Limited',
+				'statusCode': response.statusCode,
+				'artist': artist,
+				'title': title,
+				'Retry-After': response.headers['retry-after']
+			});
+			data.error = {
+				'error': 'Rate Limit',
+				'status': 429,
+				'retry': parseInt(response.headers['retry-after'])
+			}
 		} else {
-			console.log(error);
+			console.log({
+				'error': error,
+				'statusCode': response.statusCode,
+				'artist': artist,
+				'title': title
+			});
 		}
 		res.json(data);
 	});

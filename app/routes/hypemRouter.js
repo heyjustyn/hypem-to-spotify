@@ -32,12 +32,14 @@ function getPageInfo(url, res) {
 			
 			var jsonLink = getJsonPath(html);
 			var numberOfPages = getNumberOfPages(html);
+			var pageTitle = getPageTitle(html);
 			var totalAmountOfTracks = getNumberOfTracksOnPage(html) * numberOfPages;
 
 			res.json({
 				link: jsonLink,
 				pages: numberOfPages,
-				songs: totalAmountOfTracks
+				songs: totalAmountOfTracks,
+				title: pageTitle
 			});
 		}
 	});
@@ -49,6 +51,7 @@ function getJsonPath(html) {
 		var temp = html(this).attr("href");
 		if (temp !== undefined && temp.indexOf("data.js") > -1) {
 			out = "http://hypem.com" + temp;
+			return false;
 		}
 	});
 	return out;
@@ -71,6 +74,10 @@ function getNumberOfPages(html) {
 
 function getNumberOfTracksOnPage(html) {
 	return html(".section-track").length;
+}
+
+function getPageTitle(html) {
+	return html("#message h1").first().text();
 }
 
 function getPageTracks(url, res) {
