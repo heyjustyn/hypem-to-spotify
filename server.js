@@ -7,7 +7,7 @@ var spotifyRouter = require("./app/routes/spotifyRouter");
 var app = express();
 var conf = new config();
 
-app.use(express.static(__dirname + "/public"))
+app.use(express.static(__dirname + "/public_html"))
 	.use("/hypem", hypemRouter)
 	.use("/spotify", spotifyRouter);
 
