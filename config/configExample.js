@@ -13,7 +13,7 @@ var prod = {
 	'spotify': {
 		'client_id': 'aaaaaaaaaaaaaaaa', 
 		'client_secret': 'aaaaaaaaaaaaaaaa',
-		'redirect_uri': 'http://localhost:3000/callback'
+		'redirect_uri': 'http://hts.justynh.com/callback'
 	},
 	'web' : {
 		'port': 3000
